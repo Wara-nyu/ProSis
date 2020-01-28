@@ -10,10 +10,10 @@ class Proxy
         s = @socket.accept
         Thread.new s, &method(:handle_request)
       end
-    # CTRL-C
+      # CTRL-C
     rescue Interrupt #
       puts 'Got Interrupt..'
-
+      # S'assure de diriger le socket vers erreur
     ensure
       if @socket
         @socket.close
@@ -30,50 +30,50 @@ class Proxy
     url     = request_line[/^\w+\s+(\S+)/, 1]
     version = request_line[/HTTP\/(1\.\d)\s*$/, 1]
     uri     = URI::parse url
-    
-    # Show what got requested
+    # Exprime la requete
     puts((" %4s "%verb) + url)
-    
+    puts(uri.host)
+
     to_server = TCPSocket.new(uri.host, (uri.port.nil? ? 80 : uri.port))
-    to_server.write("#{verb} #{uri.path}?#{uri.query} HTTP/#{version}\r\n")
-    
+    to_server.write("#{verb} #{uri.path}?#{url.query} HTTP/#{version}\r\n")
+
     content_len = 0
-    
-    loop do      
+
+    loop do
       line = to_client.readline
-      
+
       if line =~ /^Content-Length:\s+(\d+)\s*$/
         content_len = $1.to_i
       end
-      
+
       # Strip proxy headers
       if line =~ /^proxy/i
         next
       elsif line.strip.empty?
         to_server.write("Connection: close\r\n\r\n")
-        
+
         if content_len >= 0
           to_server.write(to_client.read(content_len))
         end
-        
+
         break
       else
         to_server.write(line)
       end
     end
-    
+
     buff = ""
     loop do
       to_server.read(4048, buff)
       to_client.write(buff)
       break if buff.size < 4048
     end
-    
+
     # Close the sockets
     to_client.close
     to_server.close
   end
-  
+
 end
 
 
