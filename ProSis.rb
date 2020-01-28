@@ -35,7 +35,7 @@ class Proxy
     puts(uri.host)
 
     to_server = TCPSocket.new(uri.host, (uri.port.nil? ? 80 : uri.port))
-    to_server.write("#{verb} #{uri.path}?#{url.query} HTTP/#{version}\r\n")
+    to_server.write("#{verb} #{uri.path}?#{uri.query} HTTP/#{version}\r\n")
 
     content_len = 0
 
