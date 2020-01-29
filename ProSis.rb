@@ -1,6 +1,8 @@
 require 'socket'
 require 'uri'
 
+require_relative 'handle_request'
+
 class Proxy
   def run port
     begin
@@ -22,6 +24,7 @@ class Proxy
       puts 'Quitting.'
     end
   end
+end
 
 # Get parameters and start the server
 if ARGV.empty?
